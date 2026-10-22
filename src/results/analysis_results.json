@@ -1,0 +1,439 @@
+{
+  "generated_at": "2026-04-07 12:02:18",
+  "smoke_test": {
+    "available": true,
+    "path": "d:\\RESUME\\Lexical Simplification\\src\\results\\smoke_test_output.txt",
+    "passed": 20,
+    "total": 21,
+    "failed": 1,
+    "pass_rate": 95.2,
+    "startup_sec": 17.7,
+    "demo_word_sec": 4.4,
+    "ppdb_paraphrases_difficult": 46,
+    "freq_vocab_size": 74286,
+    "individual_passes": 20,
+    "individual_failures": 1,
+    "known_failures": [
+      {
+        "word": "administered",
+        "replacement": "took",
+        "reason": "Irregular past-tense: 'took' should be inflected to 'administered' form"
+      }
+    ]
+  },
+  "accuracy_test": {
+    "available": true,
+    "path": "d:\\RESUME\\Lexical Simplification\\src\\results\\accuracy_test_output.txt",
+    "passed": 39,
+    "total": 45,
+    "failed": 6,
+    "pass_rate": 86.7,
+    "categories": [
+      {
+        "name": "Semantic Preservation",
+        "passed": 7,
+        "total": 7,
+        "rate": 100.0
+      },
+      {
+        "name": "WordNet Semantic Guard",
+        "passed": 4,
+        "total": 4,
+        "rate": 100.0
+      },
+      {
+        "name": "Morphological Preservation",
+        "passed": 3,
+        "total": 5,
+        "rate": 60.0
+      },
+      {
+        "name": "Edge Cases",
+        "passed": 6,
+        "total": 6,
+        "rate": 100.0
+      },
+      {
+        "name": "Auto-Simplification",
+        "passed": 3,
+        "total": 3,
+        "rate": 100.0
+      },
+      {
+        "name": "BenchLS Sample (10)",
+        "passed": 6,
+        "total": 10,
+        "rate": 60.0
+      }
+    ],
+    "startup_sec": 17.0,
+    "failures": [
+      {
+        "category": "Morphological Preservation",
+        "source": "administered",
+        "replacement": "took",
+        "reason": "'took' should end in -ed (source: past tense -ed)"
+      },
+      {
+        "category": "Morphological Preservation",
+        "source": "retained",
+        "replacement": "lost",
+        "reason": "'lost' should end in -ed (source: past tense -ed)"
+      },
+      {
+        "category": "BenchLS Sample",
+        "source": "diverted",
+        "replacement": "treated",
+        "gold": [
+          "redirected",
+          "rerouted",
+          "changed"
+        ]
+      },
+      {
+        "category": "BenchLS Sample",
+        "source": "perils",
+        "replacement": "places",
+        "gold": [
+          "dangers",
+          "hazards",
+          "situations"
+        ]
+      },
+      {
+        "category": "BenchLS Sample",
+        "source": "procured",
+        "replacement": "eatenned",
+        "gold": [
+          "obtained",
+          "gathered",
+          "gotten"
+        ]
+      },
+      {
+        "category": "BenchLS Sample",
+        "source": "acquired",
+        "replacement": "assumed",
+        "gold": [
+          "gotten",
+          "gained",
+          "received"
+        ]
+      }
+    ],
+    "benchls_hits": 6,
+    "benchls_total": 10,
+    "benchls_rate": 60.0,
+    "auto_simplification": [
+      {
+        "changes": 3,
+        "time_sec": 14.2
+      },
+      {
+        "changes": 3,
+        "time_sec": 7.9
+      },
+      {
+        "changes": 3,
+        "time_sec": 10.9
+      }
+    ]
+  },
+  "dataset_statistics": [
+    {
+      "name": "BenchLS",
+      "available": true,
+      "item_count": 929,
+      "unique_complex_words": 521,
+      "gold_vocab_size": 3570,
+      "avg_gold_labels": 7.37,
+      "min_gold_labels": 1,
+      "max_gold_labels": 28,
+      "avg_complex_word_length": 7.96,
+      "min_word_length": 3,
+      "max_word_length": 15,
+      "top_10_complex_words": [
+        {
+          "word": "vital",
+          "count": 11
+        },
+        {
+          "word": "fundamental",
+          "count": 11
+        },
+        {
+          "word": "prominent",
+          "count": 11
+        },
+        {
+          "word": "remainder",
+          "count": 10
+        },
+        {
+          "word": "severely",
+          "count": 10
+        },
+        {
+          "word": "grim",
+          "count": 10
+        },
+        {
+          "word": "reasonable",
+          "count": 10
+        },
+        {
+          "word": "thus",
+          "count": 10
+        },
+        {
+          "word": "civil",
+          "count": 10
+        },
+        {
+          "word": "softly",
+          "count": 10
+        }
+      ]
+    },
+    {
+      "name": "NNSeval",
+      "available": true,
+      "item_count": 239,
+      "unique_complex_words": 153,
+      "gold_vocab_size": 1352,
+      "avg_gold_labels": 7.49,
+      "min_gold_labels": 1,
+      "max_gold_labels": 27,
+      "avg_complex_word_length": 7.78,
+      "min_word_length": 3,
+      "max_word_length": 14,
+      "top_10_complex_words": [
+        {
+          "word": "prominent",
+          "count": 11
+        },
+        {
+          "word": "thus",
+          "count": 10
+        },
+        {
+          "word": "civil",
+          "count": 10
+        },
+        {
+          "word": "therefore",
+          "count": 10
+        },
+        {
+          "word": "closely",
+          "count": 10
+        },
+        {
+          "word": "worldwide",
+          "count": 10
+        },
+        {
+          "word": "tender",
+          "count": 8
+        },
+        {
+          "word": "acquired",
+          "count": 5
+        },
+        {
+          "word": "situated",
+          "count": 3
+        },
+        {
+          "word": "gradually",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "name": "lex.mturk",
+      "available": true,
+      "item_count": 500,
+      "unique_complex_words": 458,
+      "gold_vocab_size": 3960,
+      "avg_gold_labels": 12.26,
+      "min_gold_labels": 1,
+      "max_gold_labels": 32,
+      "avg_complex_word_length": 8.3,
+      "min_word_length": 3,
+      "max_word_length": 15,
+      "top_10_complex_words": [
+        {
+          "word": "situated",
+          "count": 3
+        },
+        {
+          "word": "generally",
+          "count": 3
+        },
+        {
+          "word": "gradually",
+          "count": 3
+        },
+        {
+          "word": "lies",
+          "count": 3
+        },
+        {
+          "word": "retained",
+          "count": 2
+        },
+        {
+          "word": "released",
+          "count": 2
+        },
+        {
+          "word": "endorsed",
+          "count": 2
+        },
+        {
+          "word": "spanned",
+          "count": 2
+        },
+        {
+          "word": "evidence",
+          "count": 2
+        },
+        {
+          "word": "attempting",
+          "count": 2
+        }
+      ]
+    }
+  ],
+  "auto_simplification": {
+    "examples": [
+      {
+        "original": "She endeavored to comprehend the intricate methodology.",
+        "simplified": "She endeavored to understand the scientific process.",
+        "time_sec": 14.2,
+        "substitutions": [
+          {
+            "source": "comprehend",
+            "replacement": "understand",
+            "sim": 0.5
+          },
+          {
+            "source": "intricate",
+            "replacement": "scientific",
+            "sim": 0.5
+          },
+          {
+            "source": "methodology",
+            "replacement": "process",
+            "sim": 0.615
+          }
+        ]
+      },
+      {
+        "original": "The physician administered the preliminary examination.",
+        "simplified": "The doctor administered the last test.",
+        "time_sec": 7.9,
+        "substitutions": [
+          {
+            "source": "physician",
+            "replacement": "doctor",
+            "sim": 1.0
+          },
+          {
+            "source": "examination",
+            "replacement": "test",
+            "sim": 1.0
+          },
+          {
+            "source": "preliminary",
+            "replacement": "last",
+            "sim": 0.5
+          }
+        ]
+      },
+      {
+        "original": "The committee deliberated on the contentious proposal.",
+        "simplified": "The house deliberated on the same question.",
+        "time_sec": 10.9,
+        "substitutions": [
+          {
+            "source": "committee",
+            "replacement": "house",
+            "sim": 0.8
+          },
+          {
+            "source": "proposal",
+            "replacement": "question",
+            "sim": 0.923
+          },
+          {
+            "source": "contentious",
+            "replacement": "same",
+            "sim": 0.5
+          }
+        ]
+      }
+    ],
+    "total_sentences": 3,
+    "total_substitutions": 9,
+    "avg_substitutions_per_sentence": 3.0,
+    "avg_semantic_similarity": 0.704,
+    "high_sim_subs": 4,
+    "low_sim_subs": 4,
+    "avg_time_sec": 11.0
+  },
+  "live_demo": {
+    "available": false,
+    "error": "--no-live-demo flag set"
+  },
+  "failure_analysis": {
+    "root_causes": [
+      {
+        "id": 1,
+        "name": "Irregular Past-Tense Morphology",
+        "count": 2,
+        "examples": [
+          "administered\u2192took",
+          "retained\u2192lost"
+        ],
+        "description": "The morphological post-processor checks the candidate against a PAST_FORMS lookup table but the check occurs after inflection is applied, not before. Irregular verbs whose simple past differs from the '-ed' suffix are returned uninflected, giving the original irregular form instead of the target tense.",
+        "fix": "_match_morphology: check candidate base form against PAST_FORMS before inflecting."
+      },
+      {
+        "id": 2,
+        "name": "Double-Inflection Bug",
+        "count": 1,
+        "examples": [
+          "procured\u2192eatenned"
+        ],
+        "description": "When a candidate is already in irregular-past form (e.g. 'eaten') and falls through the PAST_FORMS guard, the inflection step appends '-ed', producing nonsensical forms like 'eatenned'.",
+        "fix": "Move PAST_FORMS membership check earlier in the conditional chain in _match_morphology."
+      },
+      {
+        "id": 3,
+        "name": "Semantic Drift (Lite Mode)",
+        "count": 3,
+        "examples": [
+          "diverted\u2192treated",
+          "perils\u2192places",
+          "acquired\u2192assumed"
+        ],
+        "description": "Without full word-embedding similarity (FastText / GloVe), the engine falls back to WordNet Wu-Palmer similarity, which operates on synset graphs rather than distributional context. This produces candidates that are synset-adjacent but contextually inappropriate.",
+        "fix": "Enable full mode with FastText embeddings (4.5 GB) or substitute a lighter model such as GloVe-300d."
+      },
+      {
+        "id": 4,
+        "name": "CWI Model Incompatibility",
+        "count": 0,
+        "examples": [
+          "gpu_attention.model (TF 1.x) fails under TF 2.x"
+        ],
+        "description": "The complex-word identification model was trained with TensorFlow 1.x and uses tf.placeholder(), which is removed in TF 2.x. The engine catches this at load time and substitutes a frequency-based heuristic (Zipf score + word length + syllable count), which does not cause test failures but reduces CWI precision.",
+        "fix": "Port labeler.py to use tf.compat.v1 or retrain the CWI model using TF 2.x / PyTorch."
+      }
+    ],
+    "total_failures_causing_test_failure": 6,
+    "known_workarounds": 1
+  }
+}

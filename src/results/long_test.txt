@@ -1,0 +1,28 @@
+﻿======================================================================
+  SENTENCE ANALYSIS
+======================================================================
+
+  Input (37 words):
+  Although the project was initially intended to be completed by the end of the fiscal year, we had to extend the deadline to the following spring because the primary stakeholders requested significant modifications to the final deliverables.
+
+----------------------------------------------------------------------
+  STEP 1: Complex Word Identification
+----------------------------------------------------------------------
+  Found 5 complex words (42ms)
+
+  ERROR: 'charmap' codec can't encode characters in position 24-42: character maps to <undefined>
+
+----------------------------------------------------------------------
+  STEP 2: Simplification
+----------------------------------------------------------------------
+
+  Original:
+  Although the project was initially intended to be completed by the end of the fiscal year, we had to extend the deadline to the following spring because the primary stakeholders requested significant modifications to the final deliverables.
+
+  Simplified:
+  Although the project was initially intended to be completed by the end of the fiscal year, we had to extend the deadline to the following spring because the primary parties requested substantial changes to the final designs.
+
+  Word Changes (4):
+  ERROR: 'charmap' codec can't encode character '\u2192' in position 25: character maps to <undefined>
+
+======================================================================

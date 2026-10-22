@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# SQLite WAL/SHM files
+*.db-wal
+*.db-shm
+
+# FastText embeddings (4.5GB - download separately)
+src/datasets/Fasttext/
+
+# Large model and database files
+src/gpu_attention.model
+src/datasets/ppdb.db
+src/datasets/*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment
+.env
+.env.local

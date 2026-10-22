@@ -1,0 +1,45 @@
+﻿======================================================================
+  SENTENCE ANALYSIS
+======================================================================
+
+  Input (37 words):
+  Although the project was initially intended to be completed by the end of the fiscal year, we had to extend the deadline to the following spring because the primary stakeholders requested significant modifications to the final deliverables.
+
+----------------------------------------------------------------------
+  STEP 1: Complex Word Identification
+----------------------------------------------------------------------
+  Found 5 complex words (46ms)
+
+    deliverables          ###################   95%
+    stakeholders          ###############       75%
+    modifications         ##############        73%
+    significant           ##########            54%
+    initially             #########             47%
+
+----------------------------------------------------------------------
+  STEP 2: Simplification
+----------------------------------------------------------------------
+
+  Original:
+  Although the project was initially intended to be completed by the end of the fiscal year, we had to extend the deadline to the following spring because the primary stakeholders requested significant modifications to the final deliverables.
+
+  Simplified:
+  Although the project was initially intended to be completed by the end of the fiscal year, we had to extend the deadline to the following spring because the primary parties requested substantial changes to the final plans.
+
+  Word Changes (4):
+    deliverables         --> plans             sim=0.706  [OK]  candidates: ['design', 'product', 'project', 'plan']
+    stakeholders         --> parties           sim=0.706  [OK]  candidates: ['contractor', 'parties', 'sponsor', 'sponsors']
+    modifications        --> changes           sim=1.000  [OK]  candidates: ['changes', 'change', 'updates', 'adjustments']
+    significant          --> substantial       sim=1.000  [OK]  candidates: ['major', 'substantial', 'no', 'some']
+
+  Processing time: 22.8s
+
+----------------------------------------------------------------------
+  QUALITY ANALYSIS
+----------------------------------------------------------------------
+    deliverables         --> plans             [GOOD]  (expected: ['results', 'outputs', 'work'])
+    stakeholders         --> parties           [GOOD]  (expected: ['people involved', 'partners', 'investors'])
+    modifications        --> changes           [IDEAL]  (expected: ['changes', 'updates', 'edits'])
+    significant          --> substantial       [GOOD]  (expected: ['big', 'large', 'major'])
+
+======================================================================

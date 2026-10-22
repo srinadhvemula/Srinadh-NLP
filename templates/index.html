@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BERT-LS: AI-powered lexical simplification. Enter complex text and get simplified, easier-to-read versions instantly.">
+    <title>BERT-LS — Lexical Simplification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --bg-input: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(99, 102, 241, 0.5);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --accent-light: #818cf8;
+            --success: #10b981;
+            --success-bg: rgba(16, 185, 129, 0.1);
+            --success-border: rgba(16, 185, 129, 0.3);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245, 158, 11, 0.08);
+            --warning-border: rgba(245, 158, 11, 0.3);
+            --danger: #ef4444;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+            --gradient-2: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+            --gradient-warn: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-effects {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-effects .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+        .bg-effects .orb:nth-child(1) {
+            width: 600px; height: 600px;
+            background: #6366f1;
+            top: -200px; left: -100px;
+            animation-delay: 0s;
+        }
+        .bg-effects .orb:nth-child(2) {
+            width: 500px; height: 500px;
+            background: #8b5cf6;
+            bottom: -200px; right: -100px;
+            animation-delay: -7s;
+            animation-duration: 25s;
+        }
+        .bg-effects .orb:nth-child(3) {
+            width: 400px; height: 400px;
+            background: #0ea5e9;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -14s;
+            animation-duration: 30s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -30px) scale(1.1); }
+            50% { transform: translate(-30px, 50px) scale(0.95); }
+            75% { transform: translate(40px, 20px) scale(1.05); }
+        }
+
+        /* Layout */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px 60px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .header .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .header .logo-icon {
+            width: 48px; height: 48px;
+            background: var(--gradient-1);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--shadow-glow);
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+        .header .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 8px;
+        }
+
+        /* Status badge */
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            transition: all 0.4s ease;
+        }
+        .status-badge .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: background 0.4s;
+        }
+        .status-badge.ready .dot {
+            background: var(--success);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+        .status-badge.loading .dot {
+            background: var(--warning);
+            animation: pulse 1.5s infinite;
+        }
+        .status-badge.error .dot { background: var(--danger); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .card-header .icon {
+            font-size: 20px;
+        }
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .tab-btn:hover:not(.active) {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Input area */
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        textarea { min-height: 100px; }
+        textarea:focus, input[type="text"]:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        textarea::placeholder, input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .target-word-row {
+            display: none;
+        }
+        .target-word-row.visible {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: var(--gradient-1);
+            color: white;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35);
+        }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: none;
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto;
+        }
+        .spinner.visible { display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Phase indicator */
+        .phase-indicator {
+            display: none;
+            margin-bottom: 20px;
+        }
+        .phase-indicator.visible { display: block; }
+        .phase-steps {
+            display: flex;
+            gap: 0;
+            align-items: center;
+        }
+        .phase-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.4s;
+        }
+        .phase-step .step-num {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.4s;
+        }
+        .phase-step.active {
+            color: var(--accent-light);
+        }
+        .phase-step.active .step-num {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+        }
+        .phase-step.done {
+            color: var(--success);
+        }
+        .phase-step.done .step-num {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .phase-connector {
+            width: 40px;
+            height: 2px;
+            background: var(--border);
+            transition: background 0.4s;
+        }
+        .phase-connector.done {
+            background: var(--success);
+        }
+
+        /* Complex words display */
+        .complex-words-card {
+            display: none;
+        }
+        .complex-words-card.visible { display: block; }
+
+        .highlighted-sentence {
+            font-size: 17px;
+            line-height: 2;
+            padding: 20px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 16px;
+        }
+        .complex-highlight {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border-bottom: 2px solid rgba(245, 158, 11, 0.5);
+            font-weight: 600;
+            cursor: help;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .complex-highlight:hover {
+            background: rgba(245, 158, 11, 0.35);
+            border-bottom-color: #f59e0b;
+        }
+        .complex-highlight .tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            color: var(--text-secondary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        .complex-highlight:hover .tooltip {
+            display: block;
+        }
+
+        .complex-words-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .complex-word-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #fbbf24;
+            transition: all 0.3s;
+        }
+        .complex-word-tag .score {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Results */
+        .results-card {
+            display: none;
+        }
+        .results-card.visible { display: block; }
+
+        .result-section {
+            padding: 20px;
+            background: var(--bg-input);
+            border-radius: 14px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+        .result-section .label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .result-section .text {
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-primary);
+        }
+
+        .result-section.simplified {
+            border-color: var(--success-border);
+            background: var(--success-bg);
+        }
+        .result-section.simplified .text {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* Highlighted words */
+        .word-changed {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--accent-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-decoration: line-through;
+            font-weight: 400;
+        }
+        .word-replacement {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Changes detail list */
+        .changes-list {
+            list-style: none;
+            padding: 0;
+        }
+        .changes-list li {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 14px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .changes-list li:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        .changes-list .arrow {
+            color: var(--accent);
+            font-weight: bold;
+        }
+        .changes-list .original { color: var(--text-muted); text-decoration: line-through; }
+        .changes-list .replacement { color: var(--success); font-weight: 600; }
+        .changes-list .candidates {
+            margin-left: auto;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        .changes-list .metrics-row {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        /* Semantic metric badges */
+        .metric-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .metric-badge.sim {
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            color: #38bdf8;
+        }
+        .metric-badge.sim.high {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+        .metric-badge.sim.low {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+        }
+        .metric-badge.sense {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+        .metric-badge.sense.fail {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        /* Metrics summary card */
+        .metrics-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .metric-card {
+            padding: 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .metric-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-1px);
+        }
+        .metric-card .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .metric-card .metric-label {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Example sentences */
+        .examples {
+            margin-top: 20px;
+        }
+        .examples .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .example-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .example-chip {
+            padding: 8px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .example-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent-light);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .footer a {
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+
+        /* Error display */
+        .error-msg {
+            display: none;
+            padding: 14px 18px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            color: #fca5a5;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .error-msg.visible { display: block; }
+
+        /* No-change info */
+        .no-change-info {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        .no-change-info .icon-big { font-size: 32px; margin-bottom: 8px; }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .app-container { padding: 24px 16px; }
+            .card { padding: 20px; }
+            .header h1 { font-size: 26px; }
+            .example-chips { flex-direction: column; }
+            .metrics-summary { grid-template-columns: repeat(2, 1fr); }
+            .phase-step { padding: 8px 10px; font-size: 12px; }
+            .readability-scores-table { font-size: 12px; }
+        }
+
+        /* ─── Readability Tab ─── */
+        .readability-input-section { display: none; }
+        .readability-input-section.visible { display: block; }
+        .readability-results-card { display: none; }
+        .readability-results-card.visible { display: block; }
+
+        .grade-slider-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .grade-slider-row label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .grade-slider-row input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--success), var(--accent), var(--warning));
+            outline: none;
+        }
+        .grade-slider-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid var(--bg-primary);
+            box-shadow: 0 0 10px var(--accent-glow);
+            cursor: pointer;
+        }
+        .grade-slider-row .grade-value {
+            min-width: 60px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-light);
+        }
+
+        /* Gauge */
+        .grade-gauge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            padding: 24px 0;
+            margin-bottom: 20px;
+        }
+        .gauge-item {
+            text-align: center;
+        }
+        .gauge-circle {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-weight: 700;
+            font-size: 22px;
+            margin: 0 auto 8px;
+            transition: all 0.5s ease;
+        }
+        .gauge-circle.before {
+            border: 4px solid var(--warning);
+            background: var(--warning-bg);
+            color: var(--warning);
+        }
+        .gauge-circle.after {
+            border: 4px solid var(--success);
+            background: var(--success-bg);
+            color: var(--success);
+        }
+        .gauge-circle small {
+            font-size: 10px;
+            font-weight: 500;
+            opacity: 0.7;
+        }
+        .gauge-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .gauge-arrow {
+            font-size: 28px;
+            color: var(--text-muted);
+        }
+        .gauge-improvement {
+            text-align: center;
+            padding: 8px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .gauge-improvement.positive {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            color: var(--success);
+        }
+        .gauge-improvement.neutral {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: var(--warning);
+        }
+
+        /* Readability scores table */
+        .readability-scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .readability-scores-table th,
+        .readability-scores-table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .readability-scores-table th {
+            color: var(--text-secondary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .readability-scores-table td {
+            color: var(--text-primary);
+        }
+        .readability-scores-table .change-cell {
+            font-weight: 600;
+        }
+        .readability-scores-table .change-cell.positive { color: var(--success); }
+        .readability-scores-table .change-cell.negative { color: var(--danger); }
+
+        /* Sentence breakdown */
+        .sentence-breakdown {
+            margin-top: 16px;
+        }
+        .sentence-breakdown summary {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 8px 0;
+        }
+        .sentence-item {
+            padding: 12px 16px;
+            margin-top: 8px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+        .sentence-item .sent-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .sentence-item .sent-text {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .sentence-item .sent-changes {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--accent-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-effects">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🧠</div>
+                <h1>BERT-LS</h1>
+            </div>
+            <p class="subtitle">AI-Powered Lexical Simplification</p>
+        </header>
+
+        <!-- Status -->
+        <div class="status-bar">
+            <div class="status-badge" id="statusBadge">
+                <span class="dot"></span>
+                <span id="statusText">Checking model status...</span>
+            </div>
+        </div>
+
+        <!-- Input Card -->
+        <div class="card">
+            <div class="card-header">
+                <span class="icon">✏️</span>
+                <h2>Input</h2>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" id="tabAuto" onclick="switchTab('auto')">Auto Simplify</button>
+                <button class="tab-btn" id="tabTargeted" onclick="switchTab('targeted')">Target Word</button>
+                <button class="tab-btn" id="tabReadability" onclick="switchTab('readability')">📊 Readability</button>
+            </div>
+
+            <div class="input-group">
+                <label for="sentenceInput">Sentence</label>
+                <textarea id="sentenceInput" placeholder="Enter a sentence with complex words to simplify..."></textarea>
+            </div>
+
+            <div class="input-group target-word-row" id="targetWordRow">
+                <label for="targetWordInput">Target Word</label>
+                <input type="text" id="targetWordInput" placeholder="Enter the specific word to simplify">
+            </div>
+
+            <div class="readability-input-section" id="readabilityInputSection">
+                <div class="grade-slider-row">
+                    <label for="gradeSlider">Target Grade</label>
+                    <input type="range" id="gradeSlider" min="1" max="16" step="0.5" value="8" oninput="updateGradeLabel(this.value)">
+                    <span class="grade-value" id="gradeLabel">8.0</span>
+                </div>
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+
+            <button class="btn-primary" id="simplifyBtn" onclick="simplify()">
+                <span id="btnText">✨ Simplify</span>
+                <div class="spinner" id="btnSpinner"></div>
+            </button>
+
+            <!-- Example sentences -->
+            <div class="examples">
+                <div class="label">Try an example</div>
+                <div class="example-chips" id="exampleChips">
+                    <div class="example-chip" onclick="loadExample(this)">The physician administered the preliminary examination</div>
+                    <div class="example-chip" onclick="loadExample(this)">The investigation demonstrated the compound's efficacy</div>
+                    <div class="example-chip" onclick="loadExample(this)">She endeavored to comprehend the intricate methodology</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase Indicator -->
+        <div class="phase-indicator" id="phaseIndicator">
+            <div class="phase-steps">
+                <div class="phase-step" id="phase1">
+                    <span class="step-num">1</span>
+                    <span>Identify Complex Words</span>
+                </div>
+                <div class="phase-connector" id="phaseConnector"></div>
+                <div class="phase-step" id="phase2">
+                    <span class="step-num">2</span>
+                    <span>Simplify</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complex Words Card (Step 1) -->
+        <div class="card complex-words-card" id="complexWordsCard">
+            <div class="card-header">
+                <span class="icon">🔍</span>
+                <h2>Complex Words Detected</h2>
+            </div>
+
+            <div class="highlighted-sentence" id="highlightedSentence"></div>
+
+            <div class="complex-words-list" id="complexWordsList"></div>
+        </div>
+
+        <!-- Results Card (Step 2) -->
+        <div class="card results-card" id="resultsCard">
+            <div class="card-header">
+                <span class="icon">📋</span>
+                <h2>Simplification Results</h2>
+            </div>
+
+            <div class="result-section" id="resultOriginal">
+                <div class="label">Original</div>
+                <div class="text" id="originalText"></div>
+            </div>
+
+            <div class="result-section simplified" id="resultSimplified">
+                <div class="label">Simplified</div>
+                <div class="text" id="simplifiedText"></div>
+            </div>
+
+            <div id="changesSection" style="display: none;">
+                <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; font-weight: 600;">Word Changes</h3>
+                <ul class="changes-list" id="changesList"></ul>
+            </div>
+
+            <div id="metricsSummary" class="metrics-summary" style="display: none;"></div>
+        </div>
+
+        <!-- Readability Results Card -->
+        <div class="card readability-results-card" id="readabilityResultsCard">
+            <div class="card-header">
+                <span class="icon">📊</span>
+                <h2>Readability Analysis</h2>
+            </div>
+
+            <!-- Gauge: Before → After -->
+            <div class="grade-gauge" id="readabilityGauge"></div>
+
+            <!-- Improvement badge -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span class="gauge-improvement" id="readabilityImprovement"></span>
+            </div>
+
+            <!-- Scores table -->
+            <table class="readability-scores-table" id="readabilityScoresTable">
+                <thead>
+                    <tr>
+                        <th>Metric</th><th>Before</th><th>After</th><th>Change</th>
+                    </tr>
+                </thead>
+                <tbody id="readabilityScoresBody"></tbody>
+            </table>
+
+            <!-- Simplified text -->
+            <div class="result-section" id="readabilityOriginalSection">
+                <div class="label">Original</div>
+                <div class="text" id="readabilityOriginalText"></div>
+            </div>
+            <div class="result-section simplified" id="readabilitySimplifiedSection">
+                <div class="label">Simplified</div>
+                <div class="text" id="readabilitySimplifiedText"></div>
+            </div>
+
+            <!-- Per-sentence breakdown -->
+            <details class="sentence-breakdown" id="sentenceBreakdown">
+                <summary>📝 Per-Sentence Breakdown (<span id="sentenceBreakdownCount">0</span> sentences)</summary>
+                <div id="sentenceBreakdownList"></div>
+            </details>
+
+            <!-- Summary metrics -->
+            <div class="metrics-summary" id="readabilityMetricsSummary" style="display: none;"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Built with BERT + Flask • <a href="https://github.com/qiang2100/BERT-LS" target="_blank">BERT-LS Research</a></p>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'auto';
+        let isProcessing = false;
+
+        const readabilityExamples = [
+            'The acquisition of proficiency in any discipline necessitates a substantial allocation of temporal resources and cognitive effort directed toward the assimilation of fundamental principles.',
+            'The institution promulgated a comprehensive set of regulations designed to ameliorate the conditions under which employees discharge their professional obligations.',
+            'The physician administered the preliminary examination and subsequently prescribed the appropriate pharmaceutical intervention.'
+        ];
+        const simplifyExamples = [
+            'The physician administered the preliminary examination',
+            "The investigation demonstrated the compound's efficacy",
+            'She endeavored to comprehend the intricate methodology'
+        ];
+
+        // Tab switching
+        function switchTab(mode) {
+            currentMode = mode;
+            document.getElementById('tabAuto').classList.toggle('active', mode === 'auto');
+            document.getElementById('tabTargeted').classList.toggle('active', mode === 'targeted');
+            document.getElementById('tabReadability').classList.toggle('active', mode === 'readability');
+            document.getElementById('targetWordRow').classList.toggle('visible', mode === 'targeted');
+            document.getElementById('readabilityInputSection').classList.toggle('visible', mode === 'readability');
+
+            // Update button text
+            const btnText = document.getElementById('btnText');
+            if (mode === 'readability') {
+                btnText.textContent = '📊 Analyze & Simplify';
+                document.querySelector('label[for="sentenceInput"]').textContent = 'Text';
+                document.getElementById('sentenceInput').placeholder = 'Enter text to analyze readability and simplify...';
+            } else {
+                btnText.textContent = '✨ Simplify';
+                document.querySelector('label[for="sentenceInput"]').textContent = 'Sentence';
+                document.getElementById('sentenceInput').placeholder = 'Enter a sentence with complex words to simplify...';
+            }
+
+            // Swap examples
+            const chipsEl = document.getElementById('exampleChips');
+            const examples = mode === 'readability' ? readabilityExamples : simplifyExamples;
+            chipsEl.innerHTML = examples.map(ex =>
+                `<div class="example-chip" onclick="loadExample(this)">${escapeHtml(ex)}</div>`
+            ).join('');
+        }
+
+        function updateGradeLabel(val) {
+            document.getElementById('gradeLabel').textContent = parseFloat(val).toFixed(1);
+        }
+
+        // Load example
+        function loadExample(el) {
+            document.getElementById('sentenceInput').value = el.textContent;
+            document.getElementById('sentenceInput').focus();
+        }
+
+        // Check model status
+        async function checkStatus() {
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                const badge = document.getElementById('statusBadge');
+                const text = document.getElementById('statusText');
+
+                badge.className = 'status-badge ' + data.status;
+
+                if (data.status === 'ready') {
+                    text.textContent = `Model ready (${data.device})`;
+                } else if (data.status === 'loading') {
+                    text.textContent = 'Loading models...';
+                    setTimeout(checkStatus, 3000);
+                } else if (data.status === 'error') {
+                    text.textContent = 'Error: ' + data.message;
+                } else {
+                    text.textContent = 'Initializing...';
+                    setTimeout(checkStatus, 2000);
+                }
+            } catch (e) {
+                document.getElementById('statusText').textContent = 'Server unreachable';
+                setTimeout(checkStatus, 5000);
+            }
+        }
+
+        // Update phase indicators
+        function setPhase(phase) {
+            const indicator = document.getElementById('phaseIndicator');
+            const p1 = document.getElementById('phase1');
+            const p2 = document.getElementById('phase2');
+            const conn = document.getElementById('phaseConnector');
+
+            indicator.classList.add('visible');
+
+            if (phase === 1) {
+                p1.className = 'phase-step active';
+                p2.className = 'phase-step';
+                conn.className = 'phase-connector';
+            } else if (phase === 2) {
+                p1.className = 'phase-step done';
+                p2.className = 'phase-step active';
+                conn.className = 'phase-connector done';
+            } else if (phase === 'done') {
+                p1.className = 'phase-step done';
+                p2.className = 'phase-step done';
+                conn.className = 'phase-connector done';
+            }
+        }
+
+        // Main simplify function
+        async function simplify() {
+            if (isProcessing) return;
+
+            const sentence = document.getElementById('sentenceInput').value.trim();
+            if (!sentence) {
+                showError('Please enter a sentence.');
+                return;
+            }
+
+            const btn = document.getElementById('simplifyBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('btnSpinner');
+
+            isProcessing = true;
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            spinner.classList.add('visible');
+            hideError();
+
+            // Reset previous results
+            document.getElementById('complexWordsCard').classList.remove('visible');
+            document.getElementById('resultsCard').classList.remove('visible');
+            document.getElementById('phaseIndicator').classList.remove('visible');
+            document.getElementById('readabilityResultsCard').classList.remove('visible');
+
+            try {
+                if (currentMode === 'readability') {
+                    // READABILITY MODE
+                    btnText.textContent = '📊 Analyzing readability...';
+                    btnText.style.display = 'inline';
+
+                    const targetGrade = parseFloat(document.getElementById('gradeSlider').value);
+                    const res = await fetch('/api/readability_simplify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: sentence, target_grade: targetGrade })
+                    });
+                    const data = await res.json();
+                    if (data.error) { showError(data.error); return; }
+                    displayReadabilityResults(data);
+
+                } else if (currentMode === 'targeted') {
+                    const targetWord = document.getElementById('targetWordInput').value.trim();
+                    if (!targetWord) {
+                        showError('Please enter a target word.');
+                        return;
+                    }
+                    // Single word mode — skip complex word identification
+                    setPhase(2);
+                    const res = await fetch('/api/simplify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sentence, target_word: targetWord })
+                    });
+                    const data = await res.json();
+                    if (data.error) { showError(data.error); return; }
+                    setPhase('done');
+                    displayResults(data);
+                } else {
+                    // AUTO MODE — Two-step flow
+                    // Step 1: Identify complex words
+                    setPhase(1);
+                    btnText.textContent = '🔍 Analyzing...';
+                    btnText.style.display = 'inline';
+
+                    const res = await fetch('/api/simplify_auto', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sentence })
+                    });
+                    const data = await res.json();
+                    if (data.error) { showError(data.error); return; }
+
+                    // Display complex words (step 1)
+                    displayComplexWords(data.original || sentence, data.complex_words || []);
+                    setPhase(2);
+
+                    // Small delay so the user can see the complex words
+                    await new Promise(resolve => setTimeout(resolve, 600));
+
+                    // Display simplification results (step 2)
+                    setPhase('done');
+                    displayResults(data);
+                }
+
+            } catch (e) {
+                showError('Request failed: ' + e.message);
+            } finally {
+                isProcessing = false;
+                btn.disabled = false;
+                btnText.textContent = currentMode === 'readability' ? '📊 Analyze & Simplify' : '✨ Simplify';
+                btnText.style.display = 'inline';
+                spinner.classList.remove('visible');
+            }
+        }
+
+        function displayComplexWords(sentence, complexWords) {
+            const card = document.getElementById('complexWordsCard');
+            const highlighted = document.getElementById('highlightedSentence');
+            const wordsList = document.getElementById('complexWordsList');
+
+            card.classList.add('visible');
+
+            // Build highlighted sentence
+            if (complexWords && complexWords.length > 0) {
+                const complexSet = {};
+                complexWords.forEach(cw => {
+                    complexSet[cw.word.toLowerCase()] = cw.complexity;
+                });
+
+                // Split sentence into words preserving punctuation
+                const parts = sentence.split(/(\s+)/);
+                let html = '';
+                parts.forEach(part => {
+                    const cleanWord = part.replace(/[^a-zA-Z]/g, '').toLowerCase();
+                    if (cleanWord && complexSet[cleanWord] !== undefined) {
+                        const score = complexSet[cleanWord];
+                        html += `<span class="complex-highlight">${escapeHtml(part)}<span class="tooltip">Complexity: ${(score * 100).toFixed(0)}%</span></span>`;
+                    } else {
+                        html += escapeHtml(part);
+                    }
+                });
+                highlighted.innerHTML = html;
+
+                // Build tags list
+                wordsList.innerHTML = '';
+                complexWords.forEach(cw => {
+                    const tag = document.createElement('span');
+                    tag.className = 'complex-word-tag';
+                    tag.innerHTML = `${escapeHtml(cw.word)} <span class="score">${(cw.complexity * 100).toFixed(0)}%</span>`;
+                    wordsList.appendChild(tag);
+                });
+            } else {
+                highlighted.innerHTML = `<div class="no-change-info"><div class="icon-big">✅</div>No complex words detected — this sentence is already simple!</div>`;
+                wordsList.innerHTML = '';
+            }
+
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function displayResults(data) {
+            const card = document.getElementById('resultsCard');
+            card.classList.add('visible');
+
+            // Original text
+            document.getElementById('originalText').textContent = data.original || '';
+
+            // Simplified text
+            document.getElementById('simplifiedText').textContent = data.simplified || '';
+
+            // Changes section
+            const changesSection = document.getElementById('changesSection');
+            const changesList = document.getElementById('changesList');
+            const metricsSummary = document.getElementById('metricsSummary');
+            changesList.innerHTML = '';
+            metricsSummary.innerHTML = '';
+            metricsSummary.style.display = 'none';
+
+            // Helper to build metric badges
+            function buildMetricBadges(sim, senseOk) {
+                let html = '<div class="metrics-row">';
+                if (sim !== undefined && sim !== null) {
+                    const simClass = sim >= 0.6 ? 'high' : (sim >= 0.3 ? '' : 'low');
+                    const simLabel = sim === 0 ? 'N/A (BERT context)' : (sim * 1).toFixed(3);
+                    html += `<span class="metric-badge sim ${simClass}">☍ Similarity: ${simLabel}</span>`;
+                }
+                if (senseOk !== undefined) {
+                    const senseClass = senseOk ? '' : 'fail';
+                    const senseIcon = senseOk ? '✓' : '✗';
+                    html += `<span class="metric-badge sense ${senseClass}">${senseIcon} Sense ${senseOk ? 'preserved' : 'changed'}</span>`;
+                }
+                html += '</div>';
+                return html;
+            }
+
+            let totalChanges = 0;
+            let totalSim = 0;
+            let senseCount = 0;
+            let simValues = [];
+
+            if (data.changes && data.changes.length > 0) {
+                changesSection.style.display = 'block';
+                data.changes.forEach(change => {
+                    const sim = change.semantic_similarity;
+                    const senseOk = change.sense_preserved;
+                    totalChanges++;
+                    if (sim !== undefined) { totalSim += sim; simValues.push(sim); }
+                    if (senseOk) senseCount++;
+
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="original">${escapeHtml(change.original_word)}</span>
+                        <span class="arrow">→</span>
+                        <span class="replacement">${escapeHtml(change.replacement)}</span>
+                        ${change.candidates && change.candidates.length > 0
+                            ? `<span class="candidates">also: ${change.candidates.slice(0, 3).map(escapeHtml).join(', ')}</span>`
+                            : ''}
+                        ${buildMetricBadges(sim, senseOk)}
+                    `;
+                    changesList.appendChild(li);
+                });
+            } else if (data.changed !== undefined) {
+                // Single word mode
+                if (data.changed) {
+                    changesSection.style.display = 'block';
+                    const sim = data.semantic_similarity;
+                    const senseOk = data.sense_preserved;
+                    totalChanges = 1;
+                    if (sim !== undefined) { totalSim = sim; simValues.push(sim); }
+                    if (senseOk) senseCount = 1;
+
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="original">${escapeHtml(data.target_word)}</span>
+                        <span class="arrow">→</span>
+                        <span class="replacement">${escapeHtml(data.replacement)}</span>
+                        ${data.candidates && data.candidates.length > 0
+                            ? `<span class="candidates">also: ${data.candidates.slice(0, 3).map(escapeHtml).join(', ')}</span>`
+                            : ''}
+                        ${buildMetricBadges(sim, senseOk)}
+                    `;
+                    changesList.appendChild(li);
+                } else {
+                    changesSection.style.display = 'block';
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span style="color: var(--text-muted)">No simpler alternative found for "${escapeHtml(data.target_word)}"</span>`;
+                    changesList.appendChild(li);
+                }
+            } else {
+                changesSection.style.display = 'none';
+            }
+
+            // Show "already simple" if no changes in auto mode
+            if (data.changes !== undefined && data.changes.length === 0) {
+                changesSection.style.display = 'block';
+                const li = document.createElement('li');
+                li.innerHTML = `<span style="color: var(--success)">✅ This sentence is already simple — no changes needed!</span>`;
+                changesList.appendChild(li);
+            }
+
+            // Metrics summary cards
+            if (totalChanges > 0) {
+                metricsSummary.style.display = 'grid';
+                const avgSim = simValues.length > 0 ? (totalSim / simValues.length) : 0;
+                const complexCount = data.complex_words ? data.complex_words.length : '—';
+
+                metricsSummary.innerHTML = `
+                    <div class="metric-card">
+                        <div class="metric-value">${complexCount}</div>
+                        <div class="metric-label">Complex Words</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${totalChanges}</div>
+                        <div class="metric-label">Words Simplified</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${avgSim > 0 ? avgSim.toFixed(2) : '—'}</div>
+                        <div class="metric-label">Avg Similarity</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">${senseCount}/${totalChanges}</div>
+                        <div class="metric-label">Sense Preserved</div>
+                    </div>
+                    ${data.time_ms ? `
+                    <div class="metric-card">
+                        <div class="metric-value">${(data.time_ms / 1000).toFixed(1)}s</div>
+                        <div class="metric-label">Processing Time</div>
+                    </div>` : ''}
+                `;
+            }
+
+            // Scroll to results
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.classList.add('visible');
+        }
+
+        function hideError() {
+            document.getElementById('errorMsg').classList.remove('visible');
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Keyboard shortcut
+        document.getElementById('sentenceInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                simplify();
+            }
+        });
+
+        // ── Readability display ──
+        function displayReadabilityResults(data) {
+            const card = document.getElementById('readabilityResultsCard');
+            card.classList.add('visible');
+
+            const before = data.before_scores || {};
+            const after = data.after_scores || {};
+
+            // Gauge
+            const gauge = document.getElementById('readabilityGauge');
+            gauge.innerHTML = `
+                <div class="gauge-item">
+                    <div class="gauge-circle before">
+                        ${(before.composite_grade || 0).toFixed(1)}
+                        <small>grade</small>
+                    </div>
+                    <div class="gauge-label">${before.interpretation || ''}</div>
+                </div>
+                <div class="gauge-arrow">→</div>
+                <div class="gauge-item">
+                    <div class="gauge-circle after">
+                        ${(after.composite_grade || 0).toFixed(1)}
+                        <small>grade</small>
+                    </div>
+                    <div class="gauge-label">${after.interpretation || ''}</div>
+                </div>
+            `;
+
+            // Improvement badge
+            const imp = data.grade_improvement || 0;
+            const impEl = document.getElementById('readabilityImprovement');
+            if (imp > 0) {
+                impEl.className = 'gauge-improvement positive';
+                impEl.innerHTML = `↓ ${imp.toFixed(1)} grade levels easier ${data.target_achieved ? '✅ Target achieved!' : ''}`;
+            } else if (imp === 0) {
+                impEl.className = 'gauge-improvement neutral';
+                impEl.textContent = 'No grade change';
+            } else {
+                impEl.className = 'gauge-improvement neutral';
+                impEl.textContent = `↑ ${Math.abs(imp).toFixed(1)} grade levels (unusual)`;
+            }
+
+            // Scores table
+            const tbody = document.getElementById('readabilityScoresBody');
+            const metrics = [
+                ['Flesch-Kincaid Grade', 'flesch_kincaid_grade', false],
+                ['SMOG Index', 'smog_index', false],
+                ['ARI', 'automated_readability_index', false],
+                ['Coleman-Liau', 'coleman_liau_index', false],
+                ['Dale-Chall', 'dale_chall_score', false],
+                ['Flesch Reading Ease', 'flesch_reading_ease', true],
+            ];
+            tbody.innerHTML = metrics.map(([label, key, higherBetter]) => {
+                const b = before[key] || 0;
+                const a = after[key] || 0;
+                const diff = a - b;
+                // For grade-type: negative = easier (positive class)
+                // For ease: positive = easier (positive class)
+                const isImproved = higherBetter ? diff > 0 : diff < 0;
+                const cls = Math.abs(diff) < 0.05 ? '' : (isImproved ? 'positive' : 'negative');
+                const sign = diff > 0 ? '+' : '';
+                return `<tr>
+                    <td>${label}</td>
+                    <td>${b.toFixed(1)}</td>
+                    <td>${a.toFixed(1)}</td>
+                    <td class="change-cell ${cls}">${sign}${diff.toFixed(1)}</td>
+                </tr>`;
+            }).join('');
+
+            // Text sections
+            document.getElementById('readabilityOriginalText').textContent = data.original_text || '';
+            document.getElementById('readabilitySimplifiedText').textContent = data.simplified_text || '';
+
+            // Sentence breakdown
+            const sentences = data.sentence_results || [];
+            document.getElementById('sentenceBreakdownCount').textContent = sentences.length;
+            const listEl = document.getElementById('sentenceBreakdownList');
+            listEl.innerHTML = sentences.map((s, i) => {
+                const changes = (s.changes || []).map(c =>
+                    `<strong>${escapeHtml(c.original_word)}</strong> → <strong>${escapeHtml(c.replacement)}</strong>`
+                ).join(', ') || 'no changes';
+                const gradeImp = s.grade_improvement || 0;
+                const impStr = gradeImp > 0 ? `↓${gradeImp.toFixed(1)}` : (gradeImp < 0 ? `↑${Math.abs(gradeImp).toFixed(1)}` : '–');
+                return `<div class="sentence-item">
+                    <div class="sent-label">Sentence ${i + 1} <span style="color:var(--success)">[${impStr}]</span></div>
+                    <div class="sent-text">${escapeHtml(s.simplified || s.original)}</div>
+                    <div class="sent-changes">${changes}</div>
+                </div>`;
+            }).join('');
+
+            // Summary metrics
+            const metricsEl = document.getElementById('readabilityMetricsSummary');
+            metricsEl.style.display = 'grid';
+            metricsEl.innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-value">${data.total_changes || 0}</div>
+                    <div class="metric-label">Words Changed</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${data.sentences_changed || 0}/${data.total_sentences || 0}</div>
+                    <div class="metric-label">Sentences Modified</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${(before.composite_grade || 0).toFixed(1)} → ${(after.composite_grade || 0).toFixed(1)}</div>
+                    <div class="metric-label">Grade Level</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${data.time_ms ? (data.time_ms / 1000).toFixed(1) + 's' : '—'}</div>
+                    <div class="metric-label">Processing Time</div>
+                </div>
+            `;
+
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Init
+        checkStatus();
+    </script>
+</body>
+</html>

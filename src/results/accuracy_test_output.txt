@@ -1,0 +1,135 @@
+﻿py : 2026-03-28 
+12:54:44.608920: I tensorf
+low/core/util/port.cc:153]
+ oneDNN custom operations 
+are on. You may see 
+slightly different 
+numerical results due to 
+floating-point round-off 
+errors from different 
+computation orders. To 
+turn them off, set the 
+environment variable 
+`TF_ENABLE_ONEDNN_OPTS=0`.
+At line:1 char:1
++ py -3.12 
+test_accuracy.py 2>&1 | 
+Out-File -FilePath 
+results\accuracy_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (2  
+  026-03-28 12:5...ONED   
+ NN_OPTS=0`.:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+2026-03-28 
+12:54:45.219891: I tensorf
+low/core/util/port.cc:153]
+ oneDNN custom operations 
+are on. You may see 
+slightly different 
+numerical results due to 
+floating-point round-off 
+errors from different 
+computation orders. To 
+turn them off, set the 
+environment variable 
+`TF_ENABLE_ONEDNN_OPTS=0`.
+============================================================
+  BERT-LS Comprehensive Accuracy Test Suite
+============================================================
+
+  Loading engine (lite mode)...
+[Engine] Device: cpu
+[Engine] Loading BERT model: bert-base-uncased
+[Engine] BERT model loaded.
+[Engine] WARNING: No word embeddings loaded. Will use WordNet similarity fallback.
+[Engine] Loading word frequency: D:\RESUME\BERT-LS-master\SUBTLEX_frequency.xlsx
+[Engine] Word frequency loaded: 74286 words
+[Engine] Loading PPDB: D:\RESUME\BERT-LS-master\datasets\ppdb.db
+[PPDB] SQLite mode: D:\RESUME\BERT-LS-master\datasets\ppdb.db
+[Engine] PPDB loaded.
+[Engine] Initialization complete!
+  Engine loaded in 17.0s
+
+
+--------------------------------------------------
+  TEST 1: Semantic Preservation
+--------------------------------------------------
+  [+] 'administered' -> 'conducted' -- Domain: give/manage, sim=0.667, IN acceptable set
+  [+] 'endeavored' -> 'tried' -- Domain: try/attempt, sim=0.800, IN acceptable set
+  [+] 'deliberated' -> 'reported' -- Domain: think/consider, sim=0.500, sense_preserved=True
+  [+] 'conducted' -> 'performed' -- Domain: carry-out, sim=0.857, IN acceptable set
+  [+] 'vital' -> 'important' -- Domain: important, sim=0.500, IN acceptable set
+  [+] 'retained' -> 'lost' -- Domain: keep, sim=0.400, sense_preserved=True
+  [+] 'prominent' -> 'local' -- Domain: important, sim=0.500, sense_preserved=True
+
+--------------------------------------------------
+  TEST 2: WordNet Semantic Guard
+--------------------------------------------------
+  [+] Guard: 'bit' -> 'bit' (bite/nip) -- Unchanged (acceptable -- word may not be complex)
+  [+] Guard: 'quickly' -> 'back' (fast/rapidly) -- sim=0.500, guard passed
+  [+] Guard: 'ancient' -> 'old' (old/historic) -- sim=0.500, guard passed
+  [+] Guard: 'abandoned' -> 'cancelled' (left/quit) -- sim=0.500, guard passed
+
+--------------------------------------------------
+  TEST 3: Morphological Preservation
+--------------------------------------------------
+  [X] Morph: 'administered' -> 'took' -- 'took' should end in -ed (source: past tense -ed)
+  [X] Morph: 'retained' -> 'lost' -- 'lost' should end in -ed (source: past tense -ed)
+  [+] Morph: 'traversed' -> 'crossed' -- 'crossed' morphology OK (past tense -ed)
+  [+] Morph: 'obstacles' -> 'problems' -- 'problems' morphology OK (plural noun -s)
+  [+] Morph: 'casualties' -> 'injuries' -- 'injuries' morphology OK (plural noun -ies)
+
+--------------------------------------------------
+  TEST 4: Edge Cases
+--------------------------------------------------
+  [+] Short sentence -- -> 'time'
+  [+] Missing word -- Correctly handled missing word
+  [+] Long sentence -- -> 'good'
+  [+] Proper noun -- Changed=True
+  [+] Punctuation sentence -- -> 'amazing'
+  [+] Contraction sentence -- -> 'cross'
+
+--------------------------------------------------
+  TEST 5: Auto-Simplification
+--------------------------------------------------
+[Engine] gpu_attention.model load failed (module 'tensorflow' has no attribute 'placeholder'), using frequency fallback
+  [+] Auto: 'She endeavored to comprehend the intricate methodo...' -- 3 changes, 14.2s -> 'She endeavored to understand the scientific process....'
+  [+]   Change: 'comprehend' -> 'understand' -- sim=0.500
+  [+]   Change: 'intricate' -> 'scientific' -- sim=0.500
+  [+]   Change: 'methodology' -> 'process' -- sim=0.615
+[Engine] gpu_attention.model load failed (module 'tensorflow' has no attribute 'placeholder'), using frequency fallback
+  [+] Auto: 'The physician administered the preliminary examina...' -- 3 changes, 7.9s -> 'The doctor administered the last test....'
+  [+]   Change: 'physician' -> 'doctor' -- sim=1.000
+  [+]   Change: 'examination' -> 'test' -- sim=1.000
+  [+]   Change: 'preliminary' -> 'last' -- sim=0.500
+[Engine] gpu_attention.model load failed (module 'tensorflow' has no attribute 'placeholder'), using frequency fallback
+  [+] Auto: 'The committee deliberated on the contentious propo...' -- 3 changes, 10.9s -> 'The house deliberated on the same question....'
+  [+]   Change: 'committee' -> 'house' -- sim=0.800
+  [+]   Change: 'proposal' -> 'question' -- sim=0.923
+  [+]   Change: 'contentious' -> 'same' -- sim=0.500
+
+--------------------------------------------------
+  TEST 6: BenchLS Sample (first 10)
+--------------------------------------------------
+  [+] BenchLS: 'pieces' -> 'parts' -- Gold=['parts', 'bits', 'components'], HIT
+  [X] BenchLS: 'diverted' -> 'treated' -- Gold=['redirected', 'rerouted', 'changed'], miss
+  [+] BenchLS: 'possessor' -> 'owner' -- Gold=['owner', 'holder', 'keeper'], HIT
+  [X] BenchLS: 'perils' -> 'places' -- Gold=['dangers', 'hazards', 'situations'], miss
+  [+] BenchLS: 'retained' -> 'maintained' -- Gold=['kept', 'held', 'maintained'], HIT
+  [+] BenchLS: 'residence' -> 'home' -- Gold=['home', 'house', 'dwelling'], HIT
+  [X] BenchLS: 'procured' -> 'eatenned' -- Gold=['obtained', 'gathered', 'gotten'], miss
+  [+] BenchLS: 'convened' -> 'held' -- Gold=['called', 'assembled', 'gathered'], HIT
+  [+] BenchLS: 'vital' -> 'important' -- Gold=['important', 'necessary', 'needed'], HIT
+  [X] BenchLS: 'acquired' -> 'assumed' -- Gold=['gotten', 'gained', 'received'], miss
+  [+] BenchLS accuracy: 6/10 -- Gold label match rate: 60%
+
+============================================================
+  Test Summary: 39/45 passed, 6 failed, 0 errors
+============================================================

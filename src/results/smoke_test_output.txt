@@ -1,0 +1,127 @@
+﻿py : 2026-03-28 
+12:49:52.363510: I tensorf
+low/core/util/port.cc:153]
+ oneDNN custom operations 
+are on. You may see 
+slightly different 
+numerical results due to 
+floating-point round-off 
+errors from different 
+computation orders. To 
+turn them off, set the 
+environment variable 
+`TF_ENABLE_ONEDNN_OPTS=0`.
+At line:1 char:1
++ py -3.12 test_engine.py 
+2>&1 | Out-File -FilePath 
+results\smoke_test_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo        
+      : NotSpecified: (2  
+  026-03-28 12:4...ONED   
+ NN_OPTS=0`.:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+2026-03-28 
+12:49:53.039551: I tensorf
+low/core/util/port.cc:153]
+ oneDNN custom operations 
+are on. You may see 
+slightly different 
+numerical results due to 
+floating-point round-off 
+errors from different 
+computation orders. To 
+turn them off, set the 
+environment variable 
+`TF_ENABLE_ONEDNN_OPTS=0`.
+============================================================
+  BERT-LS Engine Smoke Test (Updated)
+============================================================
+
+[TEST 1] Checking data assets...
+  PPDB SQLite: OK (284.9 MB)
+  Word Frequency: OK (10.3 MB)
+  BenchLS Dataset: OK (0.2 MB)
+  All assets present.
+
+[TEST 2] Loading SimplificationEngine (lite mode, no FastText)...
+[Engine] Device: cpu
+[Engine] Loading BERT model: bert-base-uncased
+[Engine] BERT model loaded.
+[Engine] WARNING: No word embeddings loaded. Will use WordNet similarity fallback.
+[Engine] Loading word frequency: D:\RESUME\BERT-LS-master\SUBTLEX_frequency.xlsx
+[Engine] Word frequency loaded: 74286 words
+[Engine] Loading PPDB: D:\RESUME\BERT-LS-master\datasets\ppdb.db
+[PPDB] SQLite mode: D:\RESUME\BERT-LS-master\datasets\ppdb.db
+[Engine] PPDB loaded.
+[Engine] Initialization complete!
+  [+] Engine loaded -- 17.7s
+
+[TEST 3] PPDB lookup for 'difficult'...
+  [+] PPDB returns results -- 46 paraphrases
+  Top results: ['easy', 'stressful', 'distressing', 'onerous', 'problematic']
+
+[TEST 4] Word frequency lookup...
+  'the': 7.468
+  'happy': 5.522
+  'ameliorate': 1.769
+  'physician': 3.789
+  'cat': 4.821
+  [+] Common word > rare word
+
+[TEST 5] Simplifying 'administered' in context...
+  Original:    The physician administered the preliminary examination
+  Simplified:  The physician gave the preliminary examination
+  Replacement: gave
+  Candidates:  ['conducted', 'performed', 'passed', 'gave', 'took']
+  Changed:     True
+  Time:        4.4s
+  [+] simplify_word returns dict
+  [+] Result has required keys
+  [+] Result has semantic metrics -- sim=0.8888888888888888, sense=True
+
+[TEST 6] Auto-simplifying: 'She endeavored to comprehend the intricate methodology'...
+[Engine] gpu_attention.model load failed (module 'tensorflow' has no attribute 'placeholder'), using frequency fallback
+  Original:   She endeavored to comprehend the intricate methodology
+  Simplified: She endeavored to understand the proper science
+    comprehend -> understand | sense_preserved=True | semantic_similarity=0.5
+    intricate -> proper | sense_preserved=True | semantic_similarity=0.5
+    methodology -> science | sense_preserved=True | semantic_similarity=0.7368421052631579
+  [+] Auto-simplify returns changes
+  [+] Changes include semantic metrics -- 3 changes
+  Time: 10.2s
+
+[TEST 7] Semantic accuracy guard tests...
+  [+] Guard: 'administered' -> 'conducted' (apply/manage domain) -- sim=0.667, sense_preserved=True
+  [+] Guard: 'endeavored' -> 'tried' (try/attempt domain) -- sim=0.800, sense_preserved=True
+  [+] Guard: 'deliberated' -> 'reported' (think/consider domain) -- sim=0.500, sense_preserved=True
+  [+] Guard: 'conducted' -> 'performed' (carry-out domain) -- sim=0.857, sense_preserved=True
+
+  Semantic guard: 4/4 passed
+
+[TEST 8] Weighted rank fusion (verifying weights are applied)...
+  [+] Weighted ranking returns result -- 'doctor'
+  [+] Candidates list populated -- 9 candidates
+
+[TEST 9] Morphological preservation...
+  [X] Morph: 'administered' -> 'took' -- Should preserve past tense -ed
+  [+] Morph: 'obstacles' -> 'factors' -- Form OK (plural noun -s)
+
+[TEST 10] WordNet fallback (engine loaded without FastText)...
+  [+] FastText NOT loaded -- Confirming lite mode
+  [+] WordNet fallback produces result -- 'guided', sim=0.8
+
+[TEST 11] Edge cases...
+  [+] Missing word handled -- Word not in sentence
+  [+] Short sentence handled
+  [+] Nonexistent word handled
+
+============================================================
+  RESULTS: 20/21 passed, 1 failed
+  [FAIL] 1 test(s) failed -- review output above
+============================================================
